@@ -27,13 +27,20 @@ namespace FileRenamer
 			InitializeComponent();
 
 			grdSelectedFolders.DataSource = _selectedDirectories;
-			cmbAvailableProperties.DataSource = new List<string>(new Exif.ExifProperties().Values);
 
+			FillComboboxes();
 			SetDefaults();
 		}
 		#endregion
 
 		#region Private Methods
+		private void FillComboboxes()
+		{
+			cmbJpegProperties.DataSource = new List<string>(new Exif.ExifProperties().Values);
+			cmbFileProperties.DataSource = new List<string>(new[] { FileProperties.FILENAME,
+				FileProperties.CREATION_DATE, FileProperties.MODFICIATION_DATE });
+		}
+
 		private void AddDirectory(string folder, bool includeSubfolders)
 		{
 			var di = new DirectoryInfo(folder);
@@ -90,8 +97,7 @@ namespace FileRenamer
 
 			string firstJpeg = _selectedFilePaths.First();
 
-			txtExample.Text = JpegMetadataReader.BuildFilenameFromMetadata(firstJpeg, txtFormat.Text,
-				JpegMetadataReader.GetMetadataForJpeg(firstJpeg), false);
+			txtExample.Text = JpegMetadataReader.BuildFilenameFromMetadata(firstJpeg, txtFormat.Text, chkToLowerCase.Checked);
 		}
 		#endregion
 
@@ -109,14 +115,39 @@ namespace FileRenamer
 			txtTotalFiles.Text = _selectedFilePaths.Count.ToString();
 		}
 
-		private void btnAddProperty_Click(object sender, EventArgs e)
+		private void btnAddFileProperty_Click(object sender, EventArgs e)
 		{
-			txtFormat.Text += (string.IsNullOrEmpty(txtFormat.Text) ? "" : txtSeparator.Text) + "[" + cmbAvailableProperties.Text + "]";
+			txtFormat.Text += (string.IsNullOrEmpty(txtFormat.Text) ? "" : txtSeparator.Text) + "[" + cmbFileProperties.Text + "]";
+		}
+
+		private void btnAddJpegProperty_Click(object sender, EventArgs e)
+		{
+			txtFormat.Text += (string.IsNullOrEmpty(txtFormat.Text) ? "" : txtSeparator.Text) + "[" + cmbJpegProperties.Text + "]";
+		}
+
+		private void chkReplaceSpacesWith_CheckedChanged(object sender, EventArgs e)
+		{
+			txtFormat.Text = txtFormat.Text.Replace(" ", string.IsNullOrEmpty(txtReplaceSpacesWith.Text) ? "" : txtReplaceSpacesWith.Text);
+			ShowExampleFileName();
+		}
+
+		private void txtReplaceSpacesWith_TextChanged(object sender, EventArgs e)
+		{
+			// TODO: Won't work if changed after the checkbox was changed - all
+			// already existing spaces won't be translated in the example... not of much importance...
+			txtFormat.Text = txtFormat.Text.Replace(" ", string.IsNullOrEmpty(txtReplaceSpacesWith.Text) ? "" : txtReplaceSpacesWith.Text);
+			ShowExampleFileName();
+		}
+
+		private void chkToLowerCase_CheckedChanged(object sender, EventArgs e)
+		{
+			txtExample.Text = txtExample.Text.ToLower();
+			ShowExampleFileName();
 		}
 
 		private void btnRenameFiles_Click(object sender, EventArgs e)
 		{
-
+			// TODO
 		}
 
 		private void txtFormat_TextChanged(object sender, EventArgs e)
