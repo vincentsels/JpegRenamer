@@ -1,7 +1,7 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JpegRenamer", "FileRenamer\JpegRenamer.csproj", "{E400C8C8-49C7-4C04-BF0A-B1E733E6CE06}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JpegRenamer", "JpegRenamer\JpegRenamer.csproj", "{E400C8C8-49C7-4C04-BF0A-B1E733E6CE06}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExifReader", "ExifReader\ExifReader.csproj", "{5924AA43-1D43-4E40-A1C8-7C33BD3DEEF8}"
 EndProject
