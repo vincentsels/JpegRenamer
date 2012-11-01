@@ -17,6 +17,9 @@ namespace Exif
 			var exifProperties = new ExifProperties();
 			var jpegProperties = new Dictionary<string, string>();
 
+			foreach (string exifProperty in exifProperties.Values)
+				jpegProperties.Add(exifProperty, string.Empty);
+
 			using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
 			{
 				Image image = System.Drawing.Image.FromStream(stream, true, false);
@@ -223,7 +226,7 @@ namespace Exif
 					}
 				}
 
-				jpegProperties.Add(propertyName, propertyValue);
+				jpegProperties[propertyName] = propertyValue;
 			}
 
 			return jpegProperties;

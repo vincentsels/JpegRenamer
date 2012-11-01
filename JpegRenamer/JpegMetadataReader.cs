@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Drawing;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace FileRenamer
 {
@@ -41,6 +42,7 @@ namespace FileRenamer
 				newFileName += originalFileName.ToLower().Substring(
 					originalFileName.ToLower().LastIndexOf(".jp"), originalFileName.Length - originalFileName.ToLower().LastIndexOf(".jp"));
 
+			newFileName = Regex.Replace(newFileName, @"[/?*:;{}""<>|\\]", "");
 			return lowerCase ? newFileName.ToLower() : newFileName;
 		}
 	}
@@ -56,9 +58,9 @@ namespace FileRenamer
 
 		public FileProperties(FileInfo fi)
 		{
-			Add(FILENAME, fi.Name);
+			Add(FILENAME, fi.Name.Substring(0, fi.Name.LastIndexOf(fi.Extension)));
 			Add(CREATION_DATE, fi.CreationTime.ToShortDateString() + " " + fi.CreationTime.ToShortTimeString());
-			Add(MODFICIATION_DATE, fi.LastWriteTime.ToLongDateString() + " " + fi.LastWriteTime.ToShortTimeString());
+			Add(MODFICIATION_DATE, fi.LastWriteTime.ToShortDateString() + " " + fi.LastWriteTime.ToShortTimeString());
 		}
 	}
 }
