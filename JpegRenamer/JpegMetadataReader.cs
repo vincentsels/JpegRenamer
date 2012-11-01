@@ -11,18 +11,26 @@ namespace FileRenamer
 {
 	public static class JpegMetadataReader
 	{
-		public static string BuildFilenameFromMetadata(string filePath, string format, bool lowerCase)
+		public static string BuildFilenameFromMetadata(FileInfo file, string format, bool replaceSpaces, string replaceSpacesWith, bool lowerCase)
 		{
-			if (string.IsNullOrEmpty(filePath)) return "";
+			if (file == null) return "";
+			if (!file.Exists) return "";
 			if (string.IsNullOrEmpty(format)) return "";
-			
-			var fileInfo = new FileInfo(filePath);
-			if (!fileInfo.Exists) return "";
 
-			var jpegProperties = Exif.ExifReader.Read(filePath);
-			var fileProperties = new FileProperties(fileInfo);
+			Dictionary<string, string> jpegProperties;
+			try
+			{
+				jpegProperties = Exif.ExifReader.Read(file.FullName);
+			}
+			catch (ArgumentException)
+			{
+				// In case the supplied file is not a valid jpeg, create an empty dictionary
+				// with all possible properties but all empty values
+				jpegProperties = new Exif.ExifProperties().ToDictionary(k => k.Key.ToString(), v => v.Value);
+			}
+			var fileProperties = new FileProperties(file);
 
-			string originalFileName = fileInfo.Name;
+			string originalFileName = file.Name;
 			string newFileName = string.Empty;
 
 			var formatSplit = format.Split(new[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries);
@@ -42,8 +50,15 @@ namespace FileRenamer
 				newFileName += originalFileName.ToLower().Substring(
 					originalFileName.ToLower().LastIndexOf(".jp"), originalFileName.Length - originalFileName.ToLower().LastIndexOf(".jp"));
 
+			if (lowerCase)
+				newFileName = newFileName.ToLower();
+			if (replaceSpaces && replaceSpacesWith != null)
+				newFileName = newFileName.Replace(" ", replaceSpacesWith);
+
+			// Remove all invalid Windows filename characters
 			newFileName = Regex.Replace(newFileName, @"[/?*:;{}""<>|\\]", "");
-			return lowerCase ? newFileName.ToLower() : newFileName;
+
+			return newFileName;
 		}
 	}
 

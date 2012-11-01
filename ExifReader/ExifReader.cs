@@ -11,7 +11,16 @@ namespace Exif
 	public static class ExifReader
 	{
 		#region Public Methods
-		public static Dictionary<string, string> Read(string filePath)
+		/// <summary>
+		/// Read all <see cref="System.Drawing.Imaging.PropertyItem"/>s from the specified
+		/// <paramref name="jpegFilePath"/> and translate them to a dictionary containing all possible
+		/// EXIF properties and their respective values. When a value is not set for the specified 
+		/// image, an empty string is provided.
+		/// </summary>
+		/// <param name="jpegFilePath">The path to an existing Jpeg file.</param>
+		/// <exception cref="System.ArgumentException">Thrown when the specified <paramref name="jpegFilePath"/>
+		/// does not point to an existing, valid Jpeg file.</exception>
+		public static Dictionary<string, string> Read(string jpegFilePath)
 		{
 			var propertyItems = new List<PropertyItem>();
 			var exifProperties = new ExifProperties();
@@ -20,7 +29,7 @@ namespace Exif
 			foreach (string exifProperty in exifProperties.Values)
 				jpegProperties.Add(exifProperty, string.Empty);
 
-			using (FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+			using (FileStream stream = new FileStream(jpegFilePath, FileMode.Open, FileAccess.Read))
 			{
 				Image image = System.Drawing.Image.FromStream(stream, true, false);
 				propertyItems.AddRange(image.PropertyItems);

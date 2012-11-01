@@ -18,7 +18,7 @@ namespace FileRenamer
 
 		#region Fields
 		private BindingList<DirectoryInfo> _selectedDirectories = new BindingList<DirectoryInfo>();
-		private List<string> _selectedFilePaths = new List<string>();
+		private List<FileInfo> _selectedFiles = new List<FileInfo>();
 		#endregion
 
 		#region Constructor
@@ -47,7 +47,7 @@ namespace FileRenamer
 			if (!_selectedDirectories.Any(d => d.FullName == di.FullName))
 			{
 				_selectedDirectories.Add(di);
-				_selectedFilePaths.AddRange(di.GetFiles(SEARCH_PATTERN).Select(fi => fi.FullName));
+				_selectedFiles.AddRange(di.GetFiles(SEARCH_PATTERN));
 			}
 
 			// Recursively add all subdirectories and their files
@@ -86,18 +86,27 @@ namespace FileRenamer
 			}
 
 			RefreshDirectoryList();
-			txtTotalFiles.Text = _selectedFilePaths.Count.ToString();
+			txtTotalFiles.Text = _selectedFiles.Count.ToString();
 			ShowExampleFileName();
+			EnableOrDisableRenameButton();
 		}
 
 		private void ShowExampleFileName()
 		{
 			if (string.IsNullOrEmpty(txtFormat.Text)) return;
-			if (_selectedFilePaths.Count == 0) return;
+			if (_selectedFiles.Count == 0) return;
 
-			string firstJpeg = _selectedFilePaths.First();
+			txtExample.Text = JpegMetadataReader.BuildFilenameFromMetadata(
+				_selectedFiles.First(), txtFormat.Text, chkReplaceSpacesWith.Checked, 
+				txtReplaceSpacesWith.Text, chkToLowerCase.Checked);
+		}
 
-			txtExample.Text = JpegMetadataReader.BuildFilenameFromMetadata(firstJpeg, txtFormat.Text, chkToLowerCase.Checked);
+		private void EnableOrDisableRenameButton()
+		{
+			if (_selectedFiles.Count() > 0 && !string.IsNullOrEmpty(txtFormat.Text)) 
+				btnRenameFiles.Enabled = true;
+			else if (btnRenameFiles.Enabled == true) 
+				btnRenameFiles.Enabled = false;
 		}
 		#endregion
 
@@ -110,9 +119,9 @@ namespace FileRenamer
 		private void btnClearFolders_Click(object sender, EventArgs e)
 		{
 			_selectedDirectories.Clear();
-			_selectedFilePaths.Clear();
+			_selectedFiles.Clear();
 			RefreshDirectoryList();
-			txtTotalFiles.Text = _selectedFilePaths.Count.ToString();
+			txtTotalFiles.Text = _selectedFiles.Count.ToString();
 		}
 
 		private void btnAddFileProperty_Click(object sender, EventArgs e)
@@ -125,33 +134,23 @@ namespace FileRenamer
 			txtFormat.Text += (string.IsNullOrEmpty(txtFormat.Text) ? "" : txtSeparator.Text) + "[" + cmbJpegProperties.Text + "]";
 		}
 
-		private void chkReplaceSpacesWith_CheckedChanged(object sender, EventArgs e)
-		{
-			txtFormat.Text = txtFormat.Text.Replace(" ", string.IsNullOrEmpty(txtReplaceSpacesWith.Text) ? "" : txtReplaceSpacesWith.Text);
-			ShowExampleFileName();
-		}
-
-		private void txtReplaceSpacesWith_TextChanged(object sender, EventArgs e)
-		{
-			// TODO: Won't work if changed after the checkbox was changed - all
-			// already existing spaces won't be translated in the example... not of much importance...
-			txtFormat.Text = txtFormat.Text.Replace(" ", string.IsNullOrEmpty(txtReplaceSpacesWith.Text) ? "" : txtReplaceSpacesWith.Text);
-			ShowExampleFileName();
-		}
-
-		private void chkToLowerCase_CheckedChanged(object sender, EventArgs e)
-		{
-			txtExample.Text = txtExample.Text.ToLower();
-			ShowExampleFileName();
-		}
-
 		private void btnRenameFiles_Click(object sender, EventArgs e)
 		{
-			// TODO
+			pbProgress.Minimum = 0;
+			pbProgress.Maximum = _selectedFiles.Count();
+			foreach (var file in _selectedFiles)
+			{
+				pbProgress.PerformStep();
+				string newName = JpegMetadataReader.BuildFilenameFromMetadata(
+					file, txtFormat.Text, chkReplaceSpacesWith.Checked, txtReplaceSpacesWith.Text, chkToLowerCase.Checked);
+				File.Move(file.FullName, Path.Combine(file.Directory.ToString(), newName));
+			}
 		}
 
 		private void txtFormat_TextChanged(object sender, EventArgs e)
 		{
+			EnableOrDisableRenameButton();
+
 			ShowExampleFileName();
 		}
 
@@ -164,6 +163,16 @@ namespace FileRenamer
 		{
 			if (e.KeyCode == Keys.Enter)
 				AddFolder();
+		}
+
+		private void FrmJpegRenamer_Load(object sender, EventArgs e)
+		{
+			EnableOrDisableRenameButton();
+		}
+
+		private void RefreshExampleName(object sender, EventArgs e)
+		{
+			ShowExampleFileName();
 		}
 		#endregion
 	}

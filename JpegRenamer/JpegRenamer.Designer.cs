@@ -211,7 +211,7 @@
 			this.chkToLowerCase.TabIndex = 16;
 			this.chkToLowerCase.Text = "Convert to lower case";
 			this.chkToLowerCase.UseVisualStyleBackColor = true;
-			this.chkToLowerCase.CheckedChanged += new System.EventHandler(this.chkToLowerCase_CheckedChanged);
+			this.chkToLowerCase.CheckedChanged += new System.EventHandler(this.RefreshExampleName);
 			// 
 			// txtReplaceSpacesWith
 			// 
@@ -220,7 +220,7 @@
 			this.txtReplaceSpacesWith.Size = new System.Drawing.Size(20, 20);
 			this.txtReplaceSpacesWith.TabIndex = 15;
 			this.txtReplaceSpacesWith.Text = "_";
-			this.txtReplaceSpacesWith.TextChanged += new System.EventHandler(this.txtReplaceSpacesWith_TextChanged);
+			this.txtReplaceSpacesWith.TextChanged += new System.EventHandler(this.RefreshExampleName);
 			// 
 			// chkReplaceSpacesWith
 			// 
@@ -231,7 +231,7 @@
 			this.chkReplaceSpacesWith.TabIndex = 14;
 			this.chkReplaceSpacesWith.Text = "Replace spaces with";
 			this.chkReplaceSpacesWith.UseVisualStyleBackColor = true;
-			this.chkReplaceSpacesWith.CheckedChanged += new System.EventHandler(this.chkReplaceSpacesWith_CheckedChanged);
+			this.chkReplaceSpacesWith.CheckedChanged += new System.EventHandler(this.RefreshExampleName);
 			// 
 			// btnAddFileProperty
 			// 
@@ -382,6 +382,7 @@
 			this.MinimumSize = new System.Drawing.Size(485, 430);
 			this.Name = "FrmJpegRenamer";
 			this.Text = "JPEG Renamer";
+			this.Load += new System.EventHandler(this.FrmJpegRenamer_Load);
 			this.grpSelectedFolders.ResumeLayout(false);
 			this.grpSelectedFolders.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.grdSelectedFolders)).EndInit();
